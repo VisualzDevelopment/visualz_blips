@@ -203,9 +203,7 @@ function GetEntityModelNumber(groupName, vehicleName)
   local displayNumber
 
   if #groupData.availableUnitNumbers > 0 then
-    print(json.encode(groupData.availableUnitNumbers))
     table.sort(groupData.availableUnitNumbers)
-    print(json.encode(groupData.availableUnitNumbers))
     entityUnitNumber = table.remove(groupData.availableUnitNumbers, 1)
   else
     entityUnitNumber = groupData.nextUnitNumber
