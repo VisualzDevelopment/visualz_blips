@@ -92,7 +92,7 @@ AddEventHandler('visualz_blips:server:addEntityToGroup', function(groupName, typ
     if type == "vehicle" then
       local entityHandle = GetEntityFromNetworkIdFunc(networkId)
       if entityHandle == nil then
-        TriggerClientEvent('ox_lib:notify', source, { type = 'error', title = 'Fejl, ERROR code 12: Kontakt PP for hjælp! med denne kode' })
+        TriggerClientEvent('ox_lib:notify', source, { type = 'error', title = 'Fejl, ERROR code 12: Kontakt IKKE PP for hjælp HAN GIDER IKKE' })
         return
       end
       local tempEntityModel = GetEntityModel(entityHandle)
