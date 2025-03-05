@@ -38,6 +38,14 @@ AddEventHandler('visualz_blips:client:updateBlip', function(blipData)
   end
 end)
 
+RegisterNetEvent("visualz_blips:client:resetBlips")
+AddEventHandler("visualz_blips:client:resetBlips", function()
+  for networkId, blip in pairs(groupBlips) do
+    RemoveBlip(blip)
+    groupBlips[networkId] = nil
+  end
+end)
+
 function SetBlipSettings(networkId, data)
   SetBlipSprite(groupBlips[networkId], data.blip.sprite)
   SetBlipColour(groupBlips[networkId], data.blip.color)
