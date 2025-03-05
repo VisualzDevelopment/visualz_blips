@@ -57,18 +57,23 @@ CreateThread(function()
         end
       end
 
-      -- Loop trough all members in the group and send them the blip data
-      for source, member in pairs(groupData.members) do
-        TriggerClientEvent('visualz_blips:client:updateBlip', source, blipData)
+      local xPlayers = ESX.GetExtendedPlayers("job", jobName)
+      for _, xPlayer in pairs(xPlayers) do
+        TriggerClientEvent('visualz_blips:client:updateBlip', xPlayer.source, blipData)
       end
+      -- Loop trough all members in the group and send them the blip data
 
       -- Loop trough all shared_groups in the group and send them the blip data
       for _, shared_group in pairs(groupData.shared_groups) do
         -- Loop trough all members in the shared_groups
         if groups[shared_group] then
-          for source, member in pairs(groups[shared_group].members) do
-            TriggerClientEvent('visualz_blips:client:updateBlip', source, blipData)
+          local xPlayers = ESX.GetExtendedPlayers("job", shared_group)
+          for _, xPlayer in pairs(xPlayers) do
+            TriggerClientEvent('visualz_blips:client:updateBlip', xPlayer.source, blipData)
           end
+          -- for source, member in pairs(groups[shared_group].members) do
+          --   TriggerClientEvent('visualz_blips:client:updateBlip', source, blipData)
+          -- end
         end
       end
 
@@ -78,7 +83,7 @@ CreateThread(function()
 end)
 
 RegisterNetEvent('visualz_blips:server:addEntityToGroup')
-AddEventHandler('visualz_blips:server:addEntityToGroup', function(groupName, type, networkId)
+AddEventHandler('visualz_blips:server:addEntityToGroup', function(groupName, type, networkId, unitName, unitNumber)
   local source = source
   local player = ESX.GetPlayerFromId(source)
 
@@ -87,30 +92,22 @@ AddEventHandler('visualz_blips:server:addEntityToGroup', function(groupName, typ
     if type == "vehicle" then
       local entityHandle = GetEntityFromNetworkIdFunc(networkId)
       if entityHandle == nil then
+        TriggerClientEvent('ox_lib:notify', source, { type = 'error', title = 'Fejl, ERROR code 12: Kontakt PP for hjælp! med denne kode' })
         return
       end
       local tempEntityModel = GetEntityModel(entityHandle)
 
       -- Loop trough all vehicles in the group
       for entityModel, entityModelData in pairs(groups[groupName].entitiyModels) do
-        -- Check if the entity already exists
-        if groups[groupName].entities[networkId] ~= nil then
-          if groups[groupName].entities[networkId].unitNumber ~= nil then
-            break
-          end
-        end
-
         if GetHashKey(entityModel) == tempEntityModel then
-          local unitNumbers = GetEntityModelNumber(groupName, entityModelData.name)
-
           -- Add the entityModel and player to the group
+          TriggerClientEvent('ox_lib:notify', source, { type = 'success', title = 'Du har tilføjet ' .. unitName .. ' - ' .. unitNumber .. ' til gruppen' })
           groups[groupName].entities[networkId] = {
-            name = entityModelData.name .. " - " .. unitNumbers.displayNumber,
+            name = unitName .. " - " .. unitNumber,
             entityModelGroupName = entityModelData.name,
             entityModelName = entityModel,
-            unitNumber = unitNumbers.unitNumber,
+            unitNumber = unitNumber
           }
-          UpdateServerEvent(groupName, entityModelGroupName)
           break
         end
       end
@@ -179,6 +176,10 @@ AddEventHandler('visualz_blips:server:goOffDuty', function(groupName)
       onDuty = false
     }
   end
+end)
+
+RegisterNetEvent('esx:setJob', function(source, job)
+  TriggerClientEvent("visualz_blips:client:resetBlips", source)
 end)
 
 function GetEntityFromNetworkIdFunc(networkId)
